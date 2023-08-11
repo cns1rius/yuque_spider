@@ -19,6 +19,7 @@ group_id = 111111111  # 打开"团队" f12查看网络 找到该url: https://xxx
 group_code = "rbxx04"  # "团队"页面url最后面的一串字符 xxx.yuque.com/{group_code}
 
 # 文库参数
+sign_all = True  # 是否爬取团队内的所有库 若为True则忽略sign_list参数
 sign_list = [
     "guxxne",
     "wlxx4z",
@@ -40,12 +41,20 @@ dir_dict = {}  # 临时做筛选用
 
 list_url = f"https://{space}.yuque.com/api/groups/{group_id}/bookstacks"  # 获取库列表
 list_id = requests.get(list_url, headers=headers).json()
-for books in list_id["data"][0]["books"]:
-    book_dict.update({f'{books["slug"]}': f'{books["id"]}'})
-    dir_dict.update({f'{books["slug"]}': f'{books["name"]}'})
-for sign in sign_list:
-    id_list.append(book_dict.get(sign))
-    dir_list.append(dir_dict.get(sign))  # 库
+
+if sign_all == False:
+    for books in list_id["data"][0]["books"]:
+        book_dict.update({f'{books["slug"]}': f'{books["id"]}'})
+        dir_dict.update({f'{books["slug"]}': f'{books["name"]}'})
+    for sign in sign_list:
+        id_list.append(book_dict.get(sign))
+        dir_list.append(dir_dict.get(sign))  # 库
+else:
+    sign_list = []
+    for books in list_id["data"][0]["books"]:
+        sign_list.append(books["slug"])
+        id_list.append(books["id"])
+        dir_list.append(books["name"])
 
 print(id_list, dir_list)
 
